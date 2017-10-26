@@ -8,7 +8,7 @@ pip install -r requirement.txt
 
 # How to start
 
-```python
+```
 python image_resize.py <filepath> [options]
 ```
 Where 'filepath' is path to file with image, options are:
@@ -23,9 +23,11 @@ Where 'filepath' is path to file with image, options are:
 
 # Examples
 
+```
 python image_resize.py image.jpg -x 250
 python image_resize.py image.jpg --width 250 --height 1000
 python image_resize.py image.jpg -s 2 -o big_image.jpg
+```
 
 
 # Project Goals
