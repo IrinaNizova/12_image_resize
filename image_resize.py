@@ -6,46 +6,46 @@ from PIL import Image
 logging.basicConfig(level=logging.WARNING)
 
 
-def get_size(im_width, im_height, **kwargs):
-    if kwargs['scale']:
-        new_width = im_width * kwargs['scale']
-        new_height = im_height * kwargs['scale']
-    elif kwargs['width'] and not kwargs['height']:
-        new_width = kwargs['width']
-        new_height = im_height * (kwargs['width']/im_width)
-    elif not kwargs['width'] and kwargs['height']:
-        new_width = im_width * (kwargs['height']/im_height)
-        new_height =  kwargs['height']
+def get_size(im_width, im_height, width=None, height=None, scale=None):
+    if scale:
+        new_width = im_width * scale
+        new_height = im_height * scale
+    elif width and not height:
+        new_width = width
+        new_height = im_height * (width/im_width)
+    elif not width and height:
+        new_width = im_width * (height/im_height)
+        new_height =  height
     else:
-        new_width = kwargs['width']
-        new_height = kwargs['height']
+        new_width = width
+        new_height = height
         if round(new_width/im_width, 2) != round(new_height/im_height, 2):
             logging.warning('At the length and width specified by you, '
                   'the proportions do not match')
     return int(new_width), int(new_height)
 
 
-def check_resize_possible(**kwargs):
-    if not kwargs['width'] and not kwargs['height'] and not kwargs['scale']:
+def check_resize_possible(filepath, width=None, height=None, scale=None):
+    if not width and not height and not scale:
         raise AttributeError('Need to width or scale to resize')
-    if (kwargs['width'] or kwargs['height']) and kwargs['scale']:
+    if (width or height) and scale:
         raise AttributeError('You wrote width and scale together. '
                              'It is unacceptable')
-    if not os.path.exists(kwargs['filepath']):
-        raise IOError('There is no file in the path {}'.format(kwargs['file_path']))
-    if os.path.splitext(kwargs['filepath'])[1].lower() not in \
+    if not os.path.exists(filepath):
+        raise IOError('There is no file in the path {}'.format(filepath))
+    if os.path.splitext(filepath)[1].lower() not in \
             ('.jpg', '.png', '.jpeg', '.gif', '.tiff'):
         raise TypeError('This file is not a picture')
 
 
-def resize_image(**kwargs):
-    im = Image.open(kwargs['filepath'])
+def resize_image(filepath, output=None, width=None, height=None, scale=None):
+    im = Image.open(filepath)
     im_width, im_height = im.size
-    new_width, new_height = get_size(im_width, im_height, **kwargs)
+    new_width, new_height = get_size(im_width, im_height, width, height, scale)
     im = im.resize((new_width, new_height), Image.ANTIALIAS)
-    path, suffix = os.path.splitext(kwargs['filepath'])
-    if kwargs['output']:
-        output_name = kwargs['output']
+    path, suffix = os.path.splitext(filepath)
+    if output:
+        output_name = output
     else:
         output_name = "".join([path, "__{}*{}".format(new_width, new_height), suffix])
     im.save(output_name)
@@ -60,6 +60,13 @@ if __name__ == '__main__':
                         help='how many times increase the image')
     parser.add_argument('-o', '--output', type=str, required=False,
                         help='path to result file')
+
     script_args = parser.parse_args()
-    check_resize_possible(**script_args.__dict__)
-    resize_image(**script_args.__dict__)
+    filepath = script_args.filepath
+    width = script_args.width
+    height = script_args.height
+    scale = script_args.scale
+    output = script_args.output
+
+    check_resize_possible(filepath, width, height, scale)
+    resize_image(filepath, output, width, height, scale)
