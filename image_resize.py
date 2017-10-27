@@ -3,6 +3,8 @@ import argparse
 import logging
 from PIL import Image
 
+logging.basicConfig(level=logging.WARNING)
+
 
 def get_size(im_width, im_height, **kwargs):
     if kwargs['scale']:
@@ -18,8 +20,7 @@ def get_size(im_width, im_height, **kwargs):
         new_width = kwargs['width']
         new_height = kwargs['height']
         if round(new_width/im_width, 2) != round(new_height/im_height, 2):
-            logger = logging.getLogger(__name__)
-            logger.warning('At the length and width specified by you, '
+            logging.warning('At the length and width specified by you, '
                   'the proportions do not match')
     return int(new_width), int(new_height)
 
